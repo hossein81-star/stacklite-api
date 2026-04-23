@@ -2,7 +2,7 @@ from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 
 from .models.skill import Skill
-
+from .models.profile import Profile
 
 from django.contrib.auth import get_user_model
 User = get_user_model()
@@ -34,3 +34,13 @@ class UserAdmin(BaseUserAdmin):
     )
     readonly_fields = ("last_login", "date_joined")
     ordering = ("email",)
+@admin.register(Profile)
+class ProfileAdmin(admin.ModelAdmin):
+    list_display = ["username",]
+    fieldsets = (
+        ("username", {"fields": ("username",)}),
+
+        ("bio", {"fields": ("bio",)}),
+        ("expertise", {"fields": ("expertise",)}),
+
+    )
