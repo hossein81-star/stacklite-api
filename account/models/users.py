@@ -51,5 +51,6 @@ class CustomUser(AbstractBaseUser,PermissionsMixin):
     object= UserManager()
     EMAIL_FIELD = 'email'
 
+    objects = UserManager()
     def __str__(self):
         return self.email

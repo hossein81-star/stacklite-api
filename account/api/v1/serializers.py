@@ -9,22 +9,25 @@ User = get_user_model()
 
 
 class UserRegisterSerializer(serializers.ModelSerializer):
-    password1=serializers.CharFeild(max_length=255,write_only=True)
+    password1=serializers.CharField(max_length=255,write_only=True)
+    password=serializers.CharField(max_length=255,write_only=True)
+
     class Meta:
         model = User
-        fields = ('email','password','password1')
+        fields = ['email','password','password1']
 
-    def validate(self, kwargs):
-        password=kwargs['password']
-        password1=kwargs['password1']
+    def validate(self, attrs):
+        password=attrs.get('password')
+        password1=attrs.get('password1')
         if password!=password1:
             raise serializers.ValidationError('Password does not match')
         try:
             validate_password(password)
 
+
         except ValidationError as e:
             raise serializers.ValidationError({"password": list(e.messages)})
-        return kwargs
+        return attrs
 
 
     def create(self, validated_data):
