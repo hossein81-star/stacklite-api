@@ -9,7 +9,7 @@ from rest_framework.views import APIView
 from .serializers import (UserRegisterSerializer,CustomTokenObtainPairSerializer)
 from rest_framework.authtoken.views import ObtainAuthToken
 from rest_framework_simplejwt.views import TokenObtainPairView
-
+from rest_framework_simplejwt.tokens import RefreshToken
 
 
 class RegisterAPI(GenericAPIView):
@@ -26,3 +26,17 @@ class RegisterAPI(GenericAPIView):
 class CustomObtainAuthToke(TokenObtainPairView):
     serializer_class = CustomTokenObtainPairSerializer
 
+
+class UserLogOutAPI(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        try:
+            refresh_token = request.data["refresh"]
+            token = RefreshToken(refresh_token)
+            token.blacklist()
+
+            return Response({"detail": "Logout successful"}, status=status.HTTP_205_RESET_CONTENT)
+
+        except Exception:
+            return Response({"error": "Invalid token"}, status=status.HTTP_400_BAD_REQUEST)
