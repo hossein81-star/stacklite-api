@@ -1,5 +1,6 @@
 from django.urls import path, include
-from .views import (RegisterAPI,CustomObtainAuthToke,UserLogOutAPI,ChangePasswordAPI)
+from .views import (RegisterAPI,CustomObtainAuthToke,UserLogOutAPI,ChangePasswordAPI,ResetPasswordAPI,
+                    PasswordResetConfirmView)
 from rest_framework_simplejwt.views import (
     TokenObtainPairView,
     TokenRefreshView, TokenVerifyView,
@@ -16,5 +17,12 @@ urlpatterns = [
     #logout
     path("user_logout",UserLogOutAPI.as_view(), name='user_logout'),
     path("change_password/",ChangePasswordAPI.as_view(),name='change_password'),
+    #reset password
+    path("reset_password/",ResetPasswordAPI.as_view(),name='reset_password'),
+    path(
+        "password-reset-confirm/<uid>/<token>/",
+        PasswordResetConfirmView.as_view(),
+        name="password_reset_confirm"
+    ),
 
 ]

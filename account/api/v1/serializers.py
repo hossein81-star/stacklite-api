@@ -61,3 +61,23 @@ class ChangePasswordSerializer(serializers.Serializer):
         user.save()
         return user
 
+
+
+class ResetPasswordSerializer(serializers.Serializer):
+    email = serializers.EmailField(max_length=255)
+    def validate_email(self, value):
+        return value
+
+
+
+class ResetPasswordConfirmSerializer(serializers.Serializer):
+    new_password = serializers.CharField(write_only=True)
+    password_confirmation = serializers.CharField(write_only=True)
+    def validate(self, data):
+        new_password=data.get("new_password")
+        password_confirmation=data.get("password_confirmation")
+        if new_password != password_confirmation:
+            raise serializers.ValidationError("Passwords do not match")
+        validate_password(new_password)
+        data.pop("password_confirmation")
+        return data
