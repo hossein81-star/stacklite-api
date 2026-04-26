@@ -1,3 +1,6 @@
+import jwt
+from jwt.exceptions import InvalidTokenError, ExpiredSignatureError
+
 from django.contrib.auth import get_user_model
 from rest_framework import status
 from django.conf import settings
@@ -8,7 +11,7 @@ from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from .serializers import (UserRegisterSerializer, CustomTokenObtainPairSerializer, ChangePasswordSerializer,
-                          ResetPasswordSerializer,ResetPasswordConfirmSerializer)
+                          ResetPasswordSerializer,ResetPasswordConfirmSerializer,ActivationsResendSerializer)
 from rest_framework.authtoken.views import ObtainAuthToken
 from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework_simplejwt.tokens import RefreshToken
@@ -30,8 +33,76 @@ class RegisterAPI(GenericAPIView):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         serializer.save()
+        email = serializer.validated_data['email']
+        user=get_object_or_404(User, email=email)
+        token_dict=self.get_tokens_for_user(user)
+        token=token_dict["refresh"]
+        from urllib.parse import quote
+
+        token_encoded = quote(token, safe='')
+        activation_link = f"http://localhost:8000/account/api/v1/activation/confirm/{token_encoded}/"
+
+        send_mail(
+            subject="activate your account",
+            message=f"Activations: {activation_link}",
+            from_email="hszhosalehi81@gmail.com",
+            recipient_list=[email],
+        )
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
+    def get_tokens_for_user(self, user):
+        refresh = RefreshToken.for_user(user)
+        return {'refresh': str(refresh), }
+
+class ActivationsApi(APIView):
+    def get(self, request, token, **kwargs):
+        try:
+            token = jwt.decode(token, settings.SECRET_KEY, algorithms=['HS256'])
+            user_id = token['user_id']
+        except jwt.ExpiredSignatureError:
+            return Response({'details': 'token has been expired'}, status=status.HTTP_400_BAD_REQUEST)
+        except jwt.InvalidTokenError:
+            return Response({'details': 'invalid token.'}, status=status.HTTP_400_BAD_REQUEST)
+        user = User.objects.get(id=user_id)
+        if user.is_verified:
+            return Response({'details': 'user is already verified.'}, status=status.HTTP_400_BAD_REQUEST)
+        user.is_verified = True
+        user.save()
+        return Response({'details': 'user is verified.'}, status=status.HTTP_200_OK)
+
+class ActivationResendApi(GenericAPIView):
+    permission_classes = (IsAuthenticated,)
+    serializer_class = ActivationsResendSerializer
+    def post(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        if serializer.is_valid():
+
+            email = serializer.validated_data["email"]
+            data = {
+                'email': email,
+            }
+            user = serializer.validated_data['user']
+            token_dict = self.get_tokens_for_user(user)
+            token = token_dict["refresh"]
+            from urllib.parse import quote
+
+            token_encoded = quote(token, safe='')
+            activation_link = f"http://localhost:8000/account/api/v1/activation/confirm/{token_encoded}/"
+
+
+
+            send_mail(
+                subject="Resend activations token your account",
+                message=f"Activations: {activation_link}",
+                from_email="hszhosalehi81@gmail.com",
+                recipient_list=[email],
+            )
+            return Response(data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def get_tokens_for_user(self, user):
+        refresh = RefreshToken.for_user(user)
+        return {'refresh': str(refresh), }
 
 class CustomObtainAuthToke(TokenObtainPairView):
     serializer_class = CustomTokenObtainPairSerializer

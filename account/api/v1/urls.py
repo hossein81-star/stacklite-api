@@ -1,6 +1,6 @@
 from django.urls import path, include
-from .views import (RegisterAPI,CustomObtainAuthToke,UserLogOutAPI,ChangePasswordAPI,ResetPasswordAPI,
-                    PasswordResetConfirmView)
+from .views import (RegisterAPI, CustomObtainAuthToke, UserLogOutAPI, ChangePasswordAPI, ResetPasswordAPI,
+                    PasswordResetConfirmView, ActivationsApi, ActivationResendApi)
 from rest_framework_simplejwt.views import (
     TokenObtainPairView,
     TokenRefreshView, TokenVerifyView,
@@ -24,5 +24,9 @@ urlpatterns = [
         PasswordResetConfirmView.as_view(),
         name="password_reset_confirm"
     ),
+    # activations
+    # path("activation/confirm/<str:token>",ActivationsApi.as_view(),name="activation_confirm"),
+    path("activation/confirm/<path:token>/", ActivationsApi.as_view(), name="activation_confirm"),
+    path('activation/resend/', ActivationResendApi.as_view(), name="activation_resend"),
 
 ]

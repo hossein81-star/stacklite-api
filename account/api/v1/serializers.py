@@ -1,6 +1,7 @@
 
 
 from django.contrib.auth.password_validation import validate_password
+from django.shortcuts import get_object_or_404
 from rest_framework import serializers
 from django.core.exceptions import ValidationError
 from django.contrib.auth import get_user_model, authenticate
@@ -81,3 +82,16 @@ class ResetPasswordConfirmSerializer(serializers.Serializer):
         validate_password(new_password)
         data.pop("password_confirmation")
         return data
+
+
+class ActivationsResendSerializer(serializers.Serializer):
+    email=serializers.EmailField(required=True)
+    def validate(self,attrs):
+        try:
+            user=User.objects.get(email=attrs["email"])
+        except User.DoesNotExist:
+            raise serializers.ValidationError({"detail":"user does not exist"})
+        if user.is_verified:
+            raise serializers.ValidationError({"detail":"user already verified"})
+        attrs['user']=user
+        return super().validate(attrs)
