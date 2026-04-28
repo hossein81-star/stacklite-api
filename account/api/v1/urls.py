@@ -1,6 +1,6 @@
 from django.urls import path, include
 from .views import (RegisterAPI, CustomObtainAuthToke, UserLogOutAPI, ChangePasswordAPI, ResetPasswordAPI,
-                    PasswordResetConfirmView, ActivationsApi, ActivationResendApi)
+                    PasswordResetConfirmView, ActivationsApi, ActivationResendApi,ProfileView)
 from rest_framework_simplejwt.views import (
     TokenObtainPairView,
     TokenRefreshView, TokenVerifyView,
@@ -28,5 +28,8 @@ urlpatterns = [
     # path("activation/confirm/<str:token>",ActivationsApi.as_view(),name="activation_confirm"),
     path("activation/confirm/<path:token>/", ActivationsApi.as_view(), name="activation_confirm"),
     path('activation/resend/', ActivationResendApi.as_view(), name="activation_resend"),
+
+    #profile
+    path("user_profile/",ProfileView.as_view(),name="user_profile"),
 
 ]

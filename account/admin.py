@@ -1,46 +1,85 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
-
-from .models.skill import Skill
-from .models.profile import Profile
-
 from django.contrib.auth import get_user_model
-User = get_user_model()
-# Register your models here.
 
-class SkillInline(admin.TabularInline):
-    model = Skill
+from .models.profile import Profile
+from .models.skill import Skill, ProfileSkill
+
+User = get_user_model()
+
+
+# -------------------------
+# Inline for Profile Skills
+# -------------------------
+
+class ProfileSkillInline(admin.TabularInline):
+    model = ProfileSkill
     extra = 1
-    fields = ("title", "level")
+    autocomplete_fields = ["skill"]
+    fields = ("skill", "level")
+
+
+# -------------------------
+# User Admin
+# -------------------------
 
 @admin.register(User)
 class UserAdmin(BaseUserAdmin):
-    model=User
 
-    inlines = [SkillInline]
-    list_display = ["email", "is_staff","is_active","date_joined","is_verified"]
-    list_filter = ["is_staff","is_active","date_joined"]
+    list_display = ["email", "is_staff", "is_active", "date_joined", "is_verified"]
+    list_filter = ["is_staff", "is_active", "date_joined"]
+
     fieldsets = (
         ("Authenticate", {"fields": ("email", "password")}),
 
-        ("Permissions", {"fields":("is_staff","is_active","is_superuser","is_verified")}),
-        ("Important dates", {"fields": ("last_login", "date_joined")}),
+        ("Permissions", {
+            "fields": ("is_staff", "is_active", "is_superuser", "is_verified")
+        }),
 
-
+        ("Important dates", {
+            "fields": ("last_login", "date_joined")
+        }),
     )
+
     add_fieldsets = (
-        ("Personal info", {"fields": ("email","password1","password2",)}),
-        ("Permissions", {"fields": ("is_staff","is_active","is_superuser","is_verified")}),
+        ("Personal info", {
+            "fields": ("email", "password1", "password2")
+        }),
+
+        ("Permissions", {
+            "fields": ("is_staff", "is_active", "is_superuser", "is_verified")
+        }),
     )
+
     readonly_fields = ("last_login", "date_joined")
     ordering = ("email",)
+
+
+# -------------------------
+# Profile Admin
+# -------------------------
+
 @admin.register(Profile)
 class ProfileAdmin(admin.ModelAdmin):
-    list_display = ["username",]
+
+    list_display = ["username"]
+    inlines = [ProfileSkillInline]
+
     fieldsets = (
-        ("username", {"fields": ("username",)}),
+        ("User Info", {"fields": ("username",)}),
 
-        ("bio", {"fields": ("bio",)}),
-        ("expertise", {"fields": ("expertise",)}),
-
+        ("Profile Info", {
+            "fields": ("bio", "expertise")
+        }),
     )
+
+
+# -------------------------
+# Skill Admin
+# -------------------------
+
+@admin.register(Skill)
+class SkillAdmin(admin.ModelAdmin):
+
+    list_display = ["title"]
+    search_fields = ["title"]

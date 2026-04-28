@@ -1,6 +1,6 @@
 import jwt
 from jwt.exceptions import InvalidTokenError, ExpiredSignatureError
-
+from rest_framework import mixins, generics
 from django.contrib.auth import get_user_model
 from rest_framework import status
 from django.conf import settings
@@ -11,7 +11,8 @@ from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from .serializers import (UserRegisterSerializer, CustomTokenObtainPairSerializer, ChangePasswordSerializer,
-                          ResetPasswordSerializer,ResetPasswordConfirmSerializer,ActivationsResendSerializer)
+                          ResetPasswordSerializer, ResetPasswordConfirmSerializer, ActivationsResendSerializer,
+                          ProfileSerializer)
 from rest_framework.authtoken.views import ObtainAuthToken
 from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework_simplejwt.tokens import RefreshToken
@@ -21,6 +22,10 @@ from django.utils.encoding import force_bytes
 from django.core.mail import send_mail
 from django.utils.http import urlsafe_base64_decode
 from django.utils.encoding import force_str
+
+from ...models import Profile
+from .permissions import IsActivatedUser
+
 token_generator = PasswordResetTokenGenerator()
 User = get_user_model()
 
@@ -188,5 +193,35 @@ class PasswordResetConfirmView(GenericAPIView):
         user.save()
 
         return Response({"message": "Password reset successful"})
+
+class ProfileView(generics.RetrieveUpdateAPIView):
+    permission_classes = [IsAuthenticated,IsActivatedUser]
+    serializer_class = ProfileSerializer
+    queryset = Profile.objects.all()
+
+    def get_object(self):
+        queryset = self.queryset
+        obj = get_object_or_404(queryset, user=self.request.user)
+        return obj
+
+    def put(self, request, *args, **kwargs):
+        return self.update(request, *args, **kwargs)
+
+    def patch(self, request, *args, **kwargs):
+        return self.partial_update(request, *args, **kwargs)
+
+    def update(self, request, *args, **kwargs):
+        partial = kwargs.pop('partial', False)
+        instance = self.get_object()
+        serializer = self.get_serializer(instance, data=request.data, partial=partial)
+        serializer.is_valid(raise_exception=True)
+        username = serializer.validated_data['username']
+        if Profile.objects.filter(username=username).exclude(pk=instance.pk).exists():
+            return Response({"error": "username already exists"}, status=400)
+        serializer.save()
+        return Response(serializer.data, status=200)
+
+
+
 
 
