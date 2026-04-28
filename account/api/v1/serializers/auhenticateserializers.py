@@ -6,7 +6,8 @@ from rest_framework import serializers
 from django.core.exceptions import ValidationError
 from django.contrib.auth import get_user_model, authenticate
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
-from ...models import Profile
+# from ...models import Profile
+from ....models import Profile
 User = get_user_model()
 
 
@@ -16,7 +17,7 @@ class UserRegisterSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ['email','password','password1','skills']
+        fields = ['email','password','password1']
 
     def validate(self, attrs):
         password=attrs.get('password')

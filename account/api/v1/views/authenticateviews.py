@@ -10,7 +10,7 @@ from rest_framework.generics import GenericAPIView, get_object_or_404
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from .serializers import (UserRegisterSerializer, CustomTokenObtainPairSerializer, ChangePasswordSerializer,
+from ..serializers.auhenticateserializers import (UserRegisterSerializer, CustomTokenObtainPairSerializer, ChangePasswordSerializer,
                           ResetPasswordSerializer, ResetPasswordConfirmSerializer, ActivationsResendSerializer,
                           ProfileSerializer)
 from rest_framework.authtoken.views import ObtainAuthToken
@@ -23,8 +23,8 @@ from django.core.mail import send_mail
 from django.utils.http import urlsafe_base64_decode
 from django.utils.encoding import force_str
 
-from ...models import Profile
-from .permissions import IsActivatedUser
+from ....models import Profile
+from ..permissions import IsActivatedUser
 
 token_generator = PasswordResetTokenGenerator()
 User = get_user_model()

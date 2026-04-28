@@ -1,5 +1,5 @@
 from django.urls import path, include
-from .views.authenticateviews  import  (RegisterAPI, CustomObtainAuthToke, UserLogOutAPI, ChangePasswordAPI, ResetPasswordAPI,
+from ..views.authenticateviews  import  (RegisterAPI, CustomObtainAuthToke, UserLogOutAPI, ChangePasswordAPI, ResetPasswordAPI,
                     PasswordResetConfirmView, ActivationsApi, ActivationResendApi,ProfileView)
 from rest_framework_simplejwt.views import (
     TokenObtainPairView,
