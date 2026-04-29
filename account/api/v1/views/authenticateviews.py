@@ -194,7 +194,21 @@ class PasswordResetConfirmView(GenericAPIView):
 
         return Response({"message": "Password reset successful"})
 
-class ProfileView(generics.RetrieveUpdateAPIView):
+
+
+class ProfileView(generics.RetrieveAPIView):
+    permission_classes = [IsAuthenticated]
+    serializer_class = ProfileSerializer
+    queryset = Profile.objects.all()
+
+
+
+
+
+
+
+
+class MyProfileViewApi(generics.RetrieveUpdateAPIView):
     permission_classes = [IsAuthenticated,IsActivatedUser]
     serializer_class = ProfileSerializer
     queryset = Profile.objects.all()
@@ -225,3 +239,11 @@ class ProfileView(generics.RetrieveUpdateAPIView):
 
 
 
+class ProfileEdite(generics.RetrieveAPIView):
+    permission_classes = [IsAuthenticated]
+    serializer_class = ProfileSerializer
+    queryset = Profile.objects.all()
+    def get_object(self):
+        profile_id = self.kwargs['pk']
+        obj=get_object_or_404(self.queryset, pk=profile_id)
+        return obj
