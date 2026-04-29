@@ -8,7 +8,7 @@ from django.contrib.auth import get_user_model, authenticate
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 # from ...models import Profile
 from ....models import Profile
-from .skillserializers import ProfileSkillSerializer
+from .skillserializers import ProfileSkillReadSerializer
 User = get_user_model()
 
 
@@ -101,10 +101,10 @@ class ActivationsResendSerializer(serializers.Serializer):
 
 
 class ProfileSerializer(serializers.ModelSerializer):
-    skills = ProfileSkillSerializer(source="profile_skills", many=True)
+    skills = ProfileSkillReadSerializer(source="profile_skills", many=True)
     class Meta:
         model = Profile
-        read_only_fields = ["skills"]
+
         fields=["username","bio","prof_image","expertise","skills"]
 
 
