@@ -35,6 +35,7 @@ INSTALLED_APPS = [
     'rest_framework.authtoken',
     'drf_yasg',
     'rest_framework_simplejwt.token_blacklist',
+    'qa',
     'account',
     'django.contrib.admin',
     'django.contrib.auth',
