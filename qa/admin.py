@@ -1,29 +1,18 @@
 from django.contrib import admin
 from .models.question import Question
-# Register your models here.
+from .models.answer import Answer
+
 
 @admin.register(Question)
 class QuestionAdmin(admin.ModelAdmin):
-    list_display = ["title", "question_text","user"]
+    list_display = ["title", "question_text", "user"]
     search_fields = ["title", "question_text"]
+    readonly_fields = ["created_at", "updated_at"]
+
     fieldsets = (
         ("Title", {
             "fields": ("title",)
         }),
-
-        ("Content", {
-            "fields": ("question_text",)
-        }),
-        ("Author", {
-            "fields": ("user",)
-        }),
-
-    )
-    add_fieldsets = (
-        ("Title", {
-            "fields": ("title",)
-        }),
-
         ("Content", {
             "fields": ("question_text",)
         }),
@@ -33,5 +22,26 @@ class QuestionAdmin(admin.ModelAdmin):
         ("Important Dates", {
             "fields": ("created_at", "updated_at")
         }),
+    )
 
+
+@admin.register(Answer)
+class AnswerAdmin(admin.ModelAdmin):
+    list_display = ["content", "user"]
+    search_fields = ["content"]
+    readonly_fields = ["created_at", "updated_at"]
+
+    fieldsets = (
+        ("Content", {
+            "fields": ("content",)
+        }),
+        ("Question", {
+            "fields": ("question",)
+        }),
+        ("Author", {
+            "fields": ("user",)
+        }),
+        ("Important Dates", {
+            "fields": ("created_at", "updated_at")
+        }),
     )
