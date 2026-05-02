@@ -1,7 +1,7 @@
 from django.contrib import admin
 from .models.question import Question
 from .models.answer import Answer
-
+from .models.vote import Vote
 
 @admin.register(Question)
 class QuestionAdmin(admin.ModelAdmin):
@@ -43,5 +43,28 @@ class AnswerAdmin(admin.ModelAdmin):
         }),
         ("Important Dates", {
             "fields": ("created_at", "updated_at")
+        }),
+    )
+
+@admin.register(Vote)
+class AnswerAdmin(admin.ModelAdmin):
+    list_display = ["answer", "user", "vote_type"]
+    search_fields = ["answer", "user"]
+
+    readonly_fields = ["created_at",]
+
+    fieldsets = (
+        ("User", {
+            "fields": ("user",)
+        }),
+        ("Answer", {
+            "fields": ("answer",)
+        }),
+        ("your Vote", {
+            "fields": ("vote_type",)
+        }),
+
+        ("Important Dates", {
+            "fields": ("created_at",)
         }),
     )
