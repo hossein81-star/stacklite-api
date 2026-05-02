@@ -26,9 +26,5 @@ class AnswerRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = AnswerSerializer
     queryset = Answer.objects.all()
     lookup_field = 'pk'
-    def get_object(self):
-        questions_id=self.kwargs.get('qs_id')
-        answer_id=self.kwargs.get('answer_id')
-        answer=get_object_or_404(self.queryset,pk=answer_id,question_id=questions_id)
-        return answer
+
 

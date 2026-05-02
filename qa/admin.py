@@ -27,7 +27,7 @@ class QuestionAdmin(admin.ModelAdmin):
 
 @admin.register(Answer)
 class AnswerAdmin(admin.ModelAdmin):
-    list_display = ["content", "user"]
+    list_display = ["content", "user","id"]
     search_fields = ["content"]
     readonly_fields = ["created_at", "updated_at"]
 

@@ -9,7 +9,7 @@ path(
     ),
 
     path(
-        "questions/<int:qs_id>/answers/<int:answer_id>/",
+        "answers/<int:pk>/",
         AnswerRetrieveUpdateDestroyAPIView.as_view(),
         name="answer-detail"
     ),
