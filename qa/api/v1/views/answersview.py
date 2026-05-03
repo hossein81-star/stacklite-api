@@ -8,6 +8,9 @@ from ....permissions import IsActivatedUser,IsAuthorUser
 from rest_framework.response import Response
 from rest_framework.generics import GenericAPIView, get_object_or_404
 from rest_framework import mixins, generics
+from django.db.models import Sum,Value
+from django.db.models.functions import Coalesce
+
 
 class AnswerListCreateAPIView(generics.ListCreateAPIView):
    permission_classes = [IsAuthenticated,IsActivatedUser]
@@ -15,7 +18,7 @@ class AnswerListCreateAPIView(generics.ListCreateAPIView):
    queryset = Answer.objects.all()
    def get_queryset(self):
        qs_id=self.kwargs.get('qs_id')
-       answers=self.queryset.filter(question_id=qs_id)
+       answers=self.queryset.filter(question_id=qs_id).annotate(score=Coalesce(Sum("votes__vote_type"), Value(0))).order_by('-score')
        return answers
    def perform_create(self, serializer, **kwargs):
        qs_id = self.kwargs.get('qs_id')
@@ -24,7 +27,13 @@ class AnswerListCreateAPIView(generics.ListCreateAPIView):
 class AnswerRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView):
     permission_classes = [IsAuthenticated,IsActivatedUser,IsAuthorUser]
     serializer_class = AnswerSerializer
-    queryset = Answer.objects.all()
     lookup_field = 'pk'
+
+    def get_queryset(self):
+        return (
+            Answer.objects
+            .select_related("user")
+            .annotate(score=Coalesce(Sum("votes__vote_type"), Value(0)))
+        )
 
 

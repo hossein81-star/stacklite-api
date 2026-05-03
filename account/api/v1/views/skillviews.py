@@ -27,5 +27,6 @@ class SkillViewSet(viewsets.ModelViewSet):
 class SkillListViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Skill.objects.all()
     serializer_class = SkillSerializer
+    permission_classes = [IsAuthenticated,IsActivatedUser]
     filter_backends = [SearchFilter]
     search_fields = ["title"]
